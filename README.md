@@ -3,7 +3,7 @@
 AI-powered community safety digest. Filters noise from real local
 alerts using Groq AI — with a rule-based fallback that works offline.
 
-Built for the Palo Alto Networks take-home challenge.
+Built for the Palo Alto Networks IT Case challenge.
 
 ---
 
