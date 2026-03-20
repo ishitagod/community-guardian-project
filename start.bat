@@ -120,7 +120,7 @@ if not exist ".env" (
     echo.
     echo   Groq AI API key setup 
     echo   Get a free key at: console.groq.com
-    echo   Press Enter to skip — app works without it.
+    echo   Press Enter to skip, app works without it.
     echo.
     set /p GROQ_KEY="  GROQ_API_KEY: "
 

@@ -13,7 +13,7 @@ Built for the Palo Alto Networks take-home challenge.
 
 ```bash
 git clone https://github.com/ishitagod/community-guardian.git
-cd community-guardian
+cd community-guardian-project
 make setup
 make run
 ```
@@ -21,28 +21,29 @@ make run
 ### Windows
 
 ```bash
-git clone https://github.com/you/community-guardian.git
-cd community-guardian
-start.bat
+git clone https://github.com/ishitagod/community-guardian-project.git
+cd community-guardian-project
+.\start.bat
 ```
 
 Both commands handle everything — venv, pip install, npm install,
-and launching both servers.
+and launching both servers. They will take some time the first time they are run.
 
 ---
 
-## Add your Groq API key (optional)
+## Groq API key
 
-Open `.env` in the project root and add:
+The setup script will prompt you for your key during installation —
+paste it in cmd line when prompted. Get a free key at **console.groq.com**
+in under a minute.
 
-```
-GROQ_API_KEY=your_groq_api_key_here
-```
+To add or update your key after setup, open `.env` in the project
+root and set:
 
-Get a free key at **[console.groq.com](https://console.groq.com/keys)** — 1 minute, no card needed.
+    GROQ_API_KEY=your_groq_api_key_here
 
-The app works fully without a key using fallback rule-based
-classification. Every feature still works.
+A rule-based fallback classifier runs automatically if the API is
+unavailable or you don't set one, so the app never fully breaks.
 
 ---
 
@@ -175,10 +176,9 @@ SQLAlchemy abstracts the rest.
 
 **Groq (Llama 3.3 70b) over OpenAI**
 Groq's free tier is sufficient for a demo and inference is fast
-(under 2 seconds per alert). More importantly, building around a
-free-tier API forced a proper fallback design — the app was built so
-every feature works without it. That resilience matters more here
-than the marginal quality difference between models.
+(under 2 seconds per alert). A fallback rule-based classifier runs when Groq is unavailable —
+this is a resilience mechanism, not the primary path. The AI
+classification is the core feature of the app.
 
 **Zustand over Redux**
 The frontend has one piece of shared global state — the user profile.
