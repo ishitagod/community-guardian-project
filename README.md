@@ -9,7 +9,7 @@ Built for the Palo Alto Networks IT Case challenge.
 
 ## Demo
 
-[Watch demo on Youtube](https://youtube.com/playlist?list=PLiIUXPbVuQomqsKKTJXocqntAgkLm7VZc&si=vR6k9uQbi1nsCHXm)
+[Watch demo on Youtube](https://www.youtube.com/watch?v=NFNBGiM7UUc&list=PLiIUXPbVuQomqsKKTJXocqntAgkLm7VZc&index=1)
 
 A 7-minute walkthrough covering the full flow of the platform, AI classification with live fallback demonstration, and API docs.
 
