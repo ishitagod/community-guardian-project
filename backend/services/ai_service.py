@@ -24,6 +24,10 @@ print(f"Key loaded: {'YES' if GROQ_API_KEY else 'NO — key is None'}")
 
 PROMPT_TEMPLATE = """You are a calm community safety assistant. Never use alarming language.
 Classify this community report and return ONLY valid JSON with no markdown, no backticks.
+Determine if the report is:
+- "verified": Contains specific details (dates, times, addresses, incident numbers, official sources)
+- "noise": Vague language (maybe, probably, I think, seems, heard) without specifics
+- "unreviewed": Unclear or insufficient information
 
 {{
   "classification": "verified" or "noise" or "unreviewed",
@@ -36,6 +40,16 @@ Report: {text}
 Alert type: {alert_type}"""
 
 async def classify_alert_with_ai(title: str, description: str, alert_type: str) -> dict:
+
+    """
+    Use Groq API to classify alert as verified or noise
+    Falls back to rule-based if API fails
+    Returns: {classification, confidence, reasoning, ai_method}
+    """
+    # If alert_type is empty, use "general" as default for classification
+    if not alert_type or alert_type.strip() == "":
+        alert_type = "general"
+
     if not GROQ_API_KEY:
         print("No key — using fallback")
         return fallback_classify(title, description, alert_type)

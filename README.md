@@ -7,6 +7,12 @@ Built for the Palo Alto Networks IT Case challenge.
 
 ---
 
+## Demo
+
+[Watch demo on Youtube](https://youtube.com/playlist?list=PLiIUXPbVuQomqsKKTJXocqntAgkLm7VZc&si=vR6k9uQbi1nsCHXm)
+
+A 7-minute walkthrough covering the full flow of the platform, AI classification with live fallback demonstration, and API docs.
+
 ## Quick start
 
 ### Mac / Linux
@@ -57,31 +63,6 @@ unavailable or you don't set one, so the app never fully breaks.
 
 ---
 
-## Run tests
-
-```bash
-# Mac/Linux
-make test
-
-# Windows
-cd backend
-venv\Scripts\activate
-cd ..
-python -m pytest tests/ -v
-```
-
-Expected output — all 5 passing:
-
-```
-tests/test_happy_path.py::test_scam_detected_correctly      PASSED
-tests/test_happy_path.py::test_verified_incident_detected   PASSED
-tests/test_edge_case.py::test_empty_text_does_not_crash     PASSED
-tests/test_edge_case.py::test_vague_text_classified_as_noise PASSED
-tests/test_edge_case.py::test_very_long_text_does_not_crash PASSED
-```
-
----
-
 ## Project structure
 
 ```
@@ -113,13 +94,13 @@ community-guardian/
 
 | Layer       | Choice                | Why                                                |
 | ----------- | --------------------- | -------------------------------------------------- |
-| Backend     | FastAPI + Python      | Native async, auto Swagger UI, Pydantic validation |
-| Database    | SQLite + SQLAlchemy   | File-based, zero setup, ORM abstracts dialect      |
+| Backend     | FastAPI + Python      | Native async, auto Swagger UI                      |
+| Database    | SQLite + SQLAlchemy   | File-based, zero setup                             |
 | AI primary  | Groq — Llama 3.3 70b  | Fast inference, free tier, OpenAI-compatible       |
 | AI fallback | Rule-based classifier | Pure Python, no dependencies, always works offline |
-| Frontend    | React 18 + TypeScript | Type safety, component reuse, Vite for fast dev    |
-| State       | Zustand               | Lightweight global state, no Redux boilerplate     |
-| Styling     | Tailwind CSS          | Utility-first, no separate CSS files to maintain   |
+| Frontend    | React + TypeScript    | Type safety, component reuse, Vite for fast dev    |
+| State       | Zustand               | Lightweight global state                           |
+| Styling     | Tailwind CSS          | Utility-first                                      |
 
 ---
 
@@ -154,6 +135,31 @@ between each on launch. Bulk-inserting all at once makes the feed
 jump from empty to full instantly, which feels jarring. The stagger
 makes the app feel live and gives the frontend's polling interval
 something meaningful to show during a demo.
+
+---
+
+## Run tests
+
+```bash
+# Mac/Linux
+make test
+
+# Windows
+cd backend
+venv\Scripts\activate
+cd ..
+python -m pytest tests/ -v
+```
+
+Expected output — all 5 passing:
+
+```
+tests/test_happy_path.py::test_scam_detected_correctly      PASSED
+tests/test_happy_path.py::test_verified_incident_detected   PASSED
+tests/test_edge_case.py::test_empty_text_does_not_crash     PASSED
+tests/test_edge_case.py::test_vague_text_classified_as_noise PASSED
+tests/test_edge_case.py::test_very_long_text_does_not_crash PASSED
+```
 
 ---
 
