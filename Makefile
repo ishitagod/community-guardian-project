@@ -51,13 +51,20 @@ setup:
 	@echo ""
 
 	@if [ ! -f ".env" ]; then \
-		cp .env.example .env 2>/dev/null || echo "GROQ_API_KEY=your_groq_key_here" > .env; \
-		echo "  Created .env file"; \
-		echo "  --> Add your GROQ_API_KEY to .env (free at console.groq.com)"; \
-		echo "  --> App works without it using fallback rules"; \
-	else \
-		echo "  .env already exists"; \
-	fi
+    echo ""; \
+    echo "  Groq API key (optional — press Enter to skip)"; \
+    echo "  Get a free key at console.groq.com"; \
+    read -p "  GROQ_API_KEY: " groq_key; \
+    if [ -n "$$groq_key" ]; then \
+        echo "GROQ_API_KEY=$$groq_key" > .env; \
+        echo "  Key saved to .env"; \
+    else \
+        echo "GROQ_API_KEY=" > .env; \
+        echo "  Skipped — app will use fallback rules"; \
+    fi; \
+else \
+    echo "  .env already exists"; \
+fi
 	@echo ""
 	@echo "  Setup complete!"
 	@echo ""

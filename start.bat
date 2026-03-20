@@ -117,17 +117,20 @@ echo.
 echo [5/5] Checking environment config...
 
 if not exist ".env" (
-    if exist ".env.example" (
-        copy .env.example .env >nul
-        echo   Created .env from .env.example
-    ) else (
-        echo GROQ_API_KEY=your_groq_key_here> .env
-        echo   Created .env file
-    )
     echo.
-    echo   IMPORTANT: Open .env and add your GROQ_API_KEY
+    echo   Groq AI API key setup 
     echo   Get a free key at: console.groq.com
-    echo   The app works without it using fallback rules.
+    echo   Press Enter to skip — app works without it.
+    echo.
+    set /p GROQ_KEY="  GROQ_API_KEY: "
+
+    if "!GROQ_KEY!"=="" (
+        echo GROQ_API_KEY=> .env
+        echo   Skipped — app will use fallback rules
+    ) else (
+        echo GROQ_API_KEY=!GROQ_KEY!> .env
+        echo   Key saved to .env
+    )
 ) else (
     echo   .env already exists
 )
