@@ -1,0 +1,122 @@
+[
+  {
+    "title": "Phishing scam targeting local bank customers",
+    "description": "Local phishing scam targeting bank customers reported on 2024-03-18. Users receiving emails claiming to be from XYZ Bank asking to verify account details. Report to local authorities and FBI IC3.",
+    "alert_type": "phishing",
+    "severity": "high"
+  },
+  {
+    "title": "Data breach at online retailer",
+    "description": "Major online retailer confirmed data breach affecting 100,000+ customers. Customer names, emails, and encrypted passwords compromised. Exposed on 2024-03-17.",
+    "alert_type": "breach",
+    "severity": "high"
+  },
+  {
+    "title": "Romance scam targeting elderly residents",
+    "description": "Romance scam targeting elderly residents in the community. Scammers posing as military personnel requesting money for travel expenses. Report to local police department and AARP.",
+    "alert_type": "scam",
+    "severity": "high"
+  },
+  {
+    "title": "Car theft ring operating in neighborhood",
+    "description": "Car theft ring operating in the neighborhood reported on 2024-03-16. Three vehicles stolen from residential streets. Report suspicious activity to local police at (555) 123-4567.",
+    "alert_type": "crime",
+    "severity": "high"
+  },
+  {
+    "title": "Ransomware attack on local business",
+    "description": "Local dental practice hit with ransomware attack on 2024-03-15. Patient data encrypted. Business notifying affected patients. Reported to cybersecurity authorities.",
+    "alert_type": "breach",
+    "severity": "high"
+  },
+  {
+    "title": "I think something bad might have happened",
+    "description": "Heard from someone that maybe something concerning happened in the neighborhood today, but I'm not really sure about the details or where exactly. Could be serious though.",
+    "alert_type": "general",
+    "severity": "low"
+  },
+  {
+    "title": "SOMETHING TERRIBLE HAPPENED!!!",
+    "description": "I CANNOT BELIEVE THIS HAPPENED I AM SO MAD AND UPSET NOBODY UNDERSTANDS MY PROBLEMS THIS IS THE WORST AND EVERYONE SHOULD KNOW ABOUT IT!!!",
+    "alert_type": "general",
+    "severity": "low"
+  },
+  {
+    "title": "Maybe someone saw something weird",
+    "description": "My neighbor possibly saw something odd near the park yesterday but they weren't sure what it was. Probably nothing but thought I should mention it. Apparently it happened sometime in the afternoon.",
+    "alert_type": "general",
+    "severity": "low"
+  },
+  {
+    "title": "Local police increased patrols",
+    "description": "Local police department increased patrols in downtown area starting 2024-03-18. Response to recent increase in petty theft. Community urged to report suspicious activity.",
+    "alert_type": "crime",
+    "severity": "medium"
+  },
+  {
+    "title": "Credit card skimmer detected at ATM",
+    "description": "Credit card skimmer detected and removed from ATM at Main Street Bank on 2024-03-17. Bank advising customers to monitor accounts for fraudulent charges. New secure ATM installed.",
+    "alert_type": "scam",
+    "severity": "medium"
+  },
+  {
+    "title": "Home security tips shared",
+    "description": "Local community center hosting home security workshop on 2024-03-25. Tips on preventing break-ins and securing smart home devices. Free admission, register at community center.",
+    "alert_type": "general",
+    "severity": "low"
+  },
+  {
+    "title": "Malware detected in popular app",
+    "description": "Security researchers discovered malware in counterfeit version of popular fitness app distributed through third-party app stores on 2024-03-16. Users advised to download only from official app stores.",
+    "alert_type": "breach",
+    "severity": "high"
+  },
+  {
+    "title": "Residential burglary on Oak Street",
+    "description": "Residential burglary reported on Oak Street on 2024-03-17 between 2-4 PM. Electronics and jewelry stolen. Police case #2024-54321. Anyone with information call (555) 123-4567.",
+    "alert_type": "crime",
+    "severity": "high"
+  },
+  {
+    "title": "Rumor about weird stuff in the area",
+    "description": "There's apparently some weird stuff happening in the area but I don't actually know what it is. Heard about it from someone who heard it from someone else. Might not be real.",
+    "alert_type": "general",
+    "severity": "low"
+  },
+  {
+    "title": "Password reset scam via text message",
+    "description": "Scam alert: Users receiving text messages claiming to be from major banks requesting immediate password reset via suspicious links on 2024-03-18. Banks do not request passwords via text. Report to your bank immediately.",
+    "alert_type": "phishing",
+    "severity": "high"
+  },
+  {
+    "title": "Emergency preparedness training offered",
+    "description": "City emergency management offering free emergency preparedness training for residents. Topics include evacuation procedures, emergency supplies, and communication plans. Classes starting 2024-03-20.",
+    "alert_type": "general",
+    "severity": "low"
+  },
+  {
+    "title": "Free credit monitoring service launched",
+    "description": "In response to recent data breach, free credit monitoring service available to all residents for 12 months. Visit securitymonitor.local to enroll. Expires 2025-03-18.",
+    "alert_type": "general",
+    "severity": "medium"
+  },
+  {
+    "title": "Network security update available",
+    "description": "Critical security update available for routers and modems distributed by ISP on 2024-03-18. Update addresses remote access vulnerability. Users strongly advised to apply update immediately.",
+    "alert_type": "breach",
+    "severity": "high"
+  },
+  {
+    "title": "Community watch meeting scheduled",
+    "description": "Neighborhood watch meeting scheduled for 2024-03-24 at 7 PM at community center. Discussion of recent incidents and crime prevention strategies. All residents welcome.",
+    "alert_type": "general",
+    "severity": "low"
+  },
+  {
+    "title": "Two-factor authentication recommended",
+    "description": "Cybersecurity experts recommend enabling two-factor authentication (2FA) on all important online accounts. 2FA significantly reduces risk of unauthorized access. Steps available on most platforms.",
+    "alert_type": "general",
+    "severity": "medium"
+  }
+]

@@ -1,0 +1,152 @@
+[
+  {
+    "raw_text": "Got a WhatsApp from someone claiming to be HDFC asking for my OTP and card number. Link looks fake.",
+    "location": "Bandra, Mumbai",
+    "category": "scam"
+  },
+  {
+    "raw_text": "Power outage on Link Road since 6pm. BEST utility says 2 more hours. Affects Andheri West.",
+    "location": "Andheri West, Mumbai",
+    "category": "outage"
+  },
+  {
+    "raw_text": "The WiFi in this building is SO slow again, third time this week. Management does nothing!!",
+    "location": "Andheri West, Mumbai",
+    "category": "general"
+  },
+  {
+    "raw_text": "Bike stolen from outside D-Mart around 11am. Dark blue Honda Activa MH02. Please keep an eye out.",
+    "location": "Malad, Mumbai",
+    "category": "crime"
+  },
+  {
+    "raw_text": "Received SMS: 'Your KYC is expired, click here to update or your account will be suspended'. Classic scam.",
+    "location": "Powai, Mumbai",
+    "category": "scam"
+  },
+  {
+    "raw_text": "Minor flooding near the subway exit after heavy rain this morning. Watch your step.",
+    "location": "Dadar, Mumbai",
+    "category": "disaster"
+  },
+  {
+    "raw_text": "Fire reported at building near MG Road metro station. Fire department on scene. Evacuate area.",
+    "location": "Fort, Mumbai",
+    "category": "disaster"
+  },
+  {
+    "raw_text": "Anyone else's internet been down all day? My provider is useless. Been without connection since morning.",
+    "location": "Whitefield, Bangalore",
+    "category": "outage"
+  },
+  {
+    "raw_text": "Local police arrested 3 people involved in ATM skimming near the mall. Devices removed from all ATMs in the area.",
+    "location": "Indiranagar, Bangalore",
+    "category": "crime"
+  },
+  {
+    "raw_text": "I heard something happened at the market but no one knows what. Probably nothing important.",
+    "location": "Connaught Place, Delhi",
+    "category": "general"
+  },
+  {
+    "raw_text": "Massive traffic jam on NH8 after accident. 5 vehicles involved. Avoid area, divert traffic from Ring Road.",
+    "location": "Gurgaon, Delhi",
+    "category": "accident"
+  },
+  {
+    "raw_text": "AAAHHH THIS IS SO FRUSTRATING I HATE EVERYTHING ABOUT THIS NEIGHBORHOOD THE STREETS ARE TERRIBLE AND NOBODY CARES WHAT IS EVEN HAPPENING HERE",
+    "location": "Sector 49, Noida",
+    "category": "general"
+  },
+  {
+    "raw_text": "Suspicious package left near bank branch on Park Street. Police have cordoned off the area. Do not approach.",
+    "location": "Park Street, Kolkata",
+    "category": "crime"
+  },
+  {
+    "raw_text": "Maybe something happened near the school but I'm not sure. My friend's friend said something but I don't remember what exactly.",
+    "location": "Salt Lake, Kolkata",
+    "category": "general"
+  },
+  {
+    "raw_text": "Phishing email received claiming to be from SBI asking to verify account. Never click such links!",
+    "location": "Pune",
+    "category": "scam"
+  },
+  {
+    "raw_text": "Heavy rainfall causing waterlogging on several streets. Municipal corporation has deployed pumps. Avoid low-lying areas.",
+    "location": "Andheri West, Mumbai",
+    "category": "disaster"
+  },
+  {
+    "raw_text": "Local cybercrime cell warns of new malware targeting banking apps. Update your apps from official stores only.",
+    "location": "Cyberabad, Hyderabad",
+    "category": "scam"
+  },
+  {
+    "raw_text": "I think maybe there might be a scam going around but honestly I'm not too sure about the details lol",
+    "location": "OMR, Chennai",
+    "category": "general"
+  },
+  {
+    "raw_text": "Car accident on Outer Ring Road near Silk Board junction. Two cars involved, one person injured. Ambulance en route.",
+    "location": "Bangalore",
+    "category": "accident"
+  },
+  {
+    "raw_text": "Building evacuation drill completed successfully. All residents safely accounted for in 12 minutes.",
+    "location": "Bandra, Mumbai",
+    "category": "general"
+  },
+  {
+    "raw_text": "Robbers attempted break-in at jewelry store on MG Road at 2:30 AM. Security guards present. Police investigating.",
+    "location": "Fort, Mumbai",
+    "category": "crime"
+  },
+  {
+    "raw_text": "Medical college hospital reports power backup failures. Operations postponed. Electrical contractor working on repairs.",
+    "location": "Hyderabad",
+    "category": "outage"
+  },
+  {
+    "raw_text": "Earthquake tremors felt. Epicenter 45km away. No damage reported. Seismic monitoring teams on alert.",
+    "location": "Delhi",
+    "category": "disaster"
+  },
+  {
+    "raw_text": "Protest march scheduled for tomorrow at 10am. Main roads closure expected. Avoid peak hour commute.",
+    "location": "Bangalore",
+    "category": "general"
+  },
+  {
+    "raw_text": "School bus accident near Tech Park. 2 students injured, airlifted to hospital. Investigation underway.",
+    "location": "Hyderabad",
+    "category": "accident"
+  },
+  {
+    "raw_text": "Counterfeit currency notes detected in market. People advised to check cash carefully. Report to police if found.",
+    "location": "Delhi",
+    "category": "scam"
+  },
+  {
+    "raw_text": "Data breach at e-commerce platform affects 5000 users. Passwords reset. Check email for security alert.",
+    "location": "Bangalore",
+    "category": "scam"
+  },
+  {
+    "raw_text": "Water supply disruption in south zone for 6 hours. Municipal corporation conducting maintenance.",
+    "location": "Hyderabad",
+    "category": "outage"
+  },
+  {
+    "raw_text": "Workplace violence incident at corporate office. Person apprehended. Employee counseling arranged.",
+    "location": "Bangalore",
+    "category": "crime"
+  },
+  {
+    "raw_text": "Construction crane collapse at ongoing site. 3 workers injured. OSHA investigation initiated.",
+    "location": "Mumbai",
+    "category": "disaster"
+  }
+]
