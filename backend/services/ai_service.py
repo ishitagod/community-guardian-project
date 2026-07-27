@@ -2,10 +2,13 @@
 
 import os
 import json
+import logging
 import httpx
 from pathlib import Path
 from dotenv import load_dotenv
 from services.fallback import classify_alert as fallback_classify
+
+logger = logging.getLogger(__name__)
 
 # Load .env from project root (one level up from backend)
 project_root = Path(__file__).parent.parent.parent
@@ -16,7 +19,7 @@ load_dotenv(dotenv_path=env_file, override=True)
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL = "llama-3.3-70b-versatile"
-DEBUG = os.getenv("DEBUG", "").lower() in ("1", "true", "yes")
+
 
 
 PROMPT_TEMPLATE = """You are a calm community safety assistant. Never use alarming language.
@@ -69,8 +72,7 @@ async def classify_alert_with_ai(title: str, description: str, alert_type: str) 
             )
 
         if response.status_code != 200:
-            if DEBUG:
-                print(f"Groq returned {response.status_code} — using fallback")
+            logger.warning("Groq returned %d — using fallback", response.status_code)
             return fallback_classify(title, description, alert_type)
 
         raw = response.json()

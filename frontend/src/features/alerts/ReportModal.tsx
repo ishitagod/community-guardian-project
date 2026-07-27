@@ -7,10 +7,7 @@ interface ReportModalProps {
 }
 
 export default function ReportModal({ onClose, onSuccess }: ReportModalProps) {
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-  });
+  const [formData, setFormData] = useState({ title: "", description: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -23,103 +20,98 @@ export default function ReportModal({ onClose, onSuccess }: ReportModalProps) {
 
     try {
       if (!formData.title.trim() || !formData.description.trim()) {
-        setError("Please fill in all fields");
+        setError("Both fields are required.");
         setLoading(false);
         return;
       }
-
       await createAlert(formData);
-      setSuccess("Alert reported successfully!");
-      setTimeout(() => {
-        onSuccess();
-      }, 1500);
+      setSuccess("Alert submitted — AI is classifying it now.");
+      setTimeout(() => onSuccess(), 1500);
     } catch (err) {
       console.error("Failed to create alert:", err);
-      setError("Failed to report alert. Please try again.");
+      setError("Submission failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800">Report an Alert</h2>
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-slate-100">
+          <h2 className="text-base font-semibold text-slate-800">Report an incident</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl"
+            className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100"
+            aria-label="Close"
           >
-            ×
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+            <div className="px-4 py-3 bg-noise-light border border-noise/20 rounded-xl text-noise text-sm">
               {error}
             </div>
           )}
-
           {success && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded text-green-700 text-sm">
+            <div className="px-4 py-3 bg-verified-light border border-verified/20 rounded-xl text-verified text-sm">
               {success}
             </div>
           )}
 
-          {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Alert Title *
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+              Title
             </label>
             <input
               type="text"
-              placeholder="e.g., Phishing email detected"
+              placeholder="e.g. Phishing email in neighbourhood group"
               value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent placeholder:text-slate-400"
             />
           </div>
 
-          {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description *
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+              Description
             </label>
             <textarea
-              placeholder="Provide details about what you observed..."
+              placeholder="Describe what you observed — specific details help the AI classify accurately."
               value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent placeholder:text-slate-400 resize-none"
             />
           </div>
 
-          <p className="text-xs text-gray-500">
-            Our AI will automatically classify and analyze your report
+          <p className="text-xs text-slate-400">
+            The AI classifier will review your report and assign a confidence score.
           </p>
 
-          {/* Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-1">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
+              className="flex-1 py-2.5 text-sm font-medium border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium disabled:opacity-50"
+              className="flex-1 py-2.5 text-sm font-medium bg-accent text-white rounded-xl hover:bg-accent-hover transition-colors disabled:opacity-50"
             >
-              {loading ? "Reporting..." : "Report Alert"}
+              {loading ? "Submitting…" : "Submit report"}
             </button>
           </div>
         </form>

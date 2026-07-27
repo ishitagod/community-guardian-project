@@ -6,8 +6,10 @@ No external APIs are used - all data is synthetic and included in the repo.
 
 import os
 import json
+import logging
 from typing import List, Dict
-from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 
 def load_incidents_from_json(file_path: str = None) -> List[Dict]:
@@ -33,24 +35,24 @@ def load_incidents_from_json(file_path: str = None) -> List[Dict]:
                 break
 
     if file_path is None or not os.path.exists(file_path):
-        print(f"incidents.json not found")
+        logger.warning("incidents.json not found")
         return []
 
     try:
         with open(file_path, 'r') as f:
             incidents = json.load(f)
 
-        print(f"Loaded {len(incidents)} incidents from JSON")
+        logger.info("Loaded %d incidents from JSON", len(incidents))
         return incidents
 
     except FileNotFoundError:
-        print(f"File not found: {file_path}")
+        logger.warning("File not found: %s", file_path)
         return []
     except json.JSONDecodeError as e:
-        print(f"Invalid JSON in {file_path}: {str(e)}")
+        logger.error("Invalid JSON in %s: %s", file_path, e)
         return []
     except Exception as e:
-        print(f"Error loading JSON: {str(e)}")
+        logger.error("Error loading JSON: %s", e)
         return []
 
 

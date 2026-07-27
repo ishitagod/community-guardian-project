@@ -2,296 +2,224 @@ import { useState } from "react";
 import { createProfile, deleteProfile } from "../../api/profiles";
 import { useProfileStore } from "../../store/profileStore";
 
+function IconLock() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  );
+}
+function IconGlobe() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </svg>
+  );
+}
+function IconPin() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
+const FIELD_CLS = "w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent placeholder:text-slate-400";
+const LABEL_CLS = "block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5";
+
 export default function ProfilePage() {
   const { userProfile, setUserProfile, clearUserProfile } = useProfileStore();
   const [formData, setFormData] = useState({
-    name: "",
-    neighborhood: "",
-    city: "",
-    concerns: "",
-    share_location: false,
+    name: "", neighborhood: "", city: "", concerns: "", share_location: false,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const validateLocation = (location: string): boolean => {
-    // Reject common street address patterns
+  const validateLocation = (location: string) => {
     const streetPatterns = [
       /\b(street|st|avenue|ave|road|rd|drive|dr|lane|ln|boulevard|blvd|court|ct|circle|cir|place|pl|parkway|pkwy|plaza|plz)\b/i,
-      /\b\d+\b/, // Any number (street numbers)
-      /apt|apartment|suite|#|floor|flat/i, // Unit indicators
+      /\b\d+\b/,
+      /apt|apartment|suite|#|floor|flat/i,
     ];
-
-    return !streetPatterns.some((pattern) => pattern.test(location));
+    return !streetPatterns.some((p) => p.test(location));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-    setSuccess("");
-
+    setError(""); setSuccess("");
     try {
-      if (!formData.name.trim()) {
-        setError("Please enter your name");
-        setLoading(false);
-        return;
+      if (!formData.name.trim()) { setError("Name is required."); setLoading(false); return; }
+      if (formData.neighborhood.trim() && !validateLocation(formData.neighborhood)) {
+        setError("Use neighbourhood name only — no street addresses (e.g. 'Andheri West').");
+        setLoading(false); return;
       }
-
-      if (
-        formData.neighborhood.trim() &&
-        !validateLocation(formData.neighborhood)
-      ) {
-        setError(
-          "Neighborhood should not include street addresses. Use neighborhood name only (e.g., 'Andheri West')",
-        );
-        setLoading(false);
-        return;
-      }
-
       const res = await createProfile(formData);
-      setSuccess("Profile created successfully!");
-      setUserProfile(res.data); // Save to store
-      setFormData({
-        name: "",
-        neighborhood: "",
-        city: "",
-        concerns: "",
-        share_location: false,
-      });
+      setSuccess("Profile created.");
+      setUserProfile(res.data);
+      setFormData({ name: "", neighborhood: "", city: "", concerns: "", share_location: false });
       setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      console.error("Failed to create profile:", err);
-      setError("Failed to create profile. Please try again.");
+    } catch {
+      setError("Failed to create profile. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!userProfile) {
-      setError("No profile to delete");
-      return;
-    }
-
-    setLoading(true);
-    setError("");
+    if (!userProfile) return;
+    setLoading(true); setError("");
     try {
       await deleteProfile(userProfile.id);
       clearUserProfile();
-      setSuccess("Profile deleted successfully");
+      setSuccess("Profile deleted.");
       setTimeout(() => setSuccess(""), 3000);
-    } catch (err) {
-      console.error("Failed to delete profile:", err);
-      setError("Failed to delete profile. Please try again.");
+    } catch {
+      setError("Failed to delete profile. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Show profile details if profile exists
+  const Feedback = () => (
+    <>
+      {error && <div className="px-4 py-3 bg-noise-light border border-noise/20 rounded-xl text-noise text-sm">{error}</div>}
+      {success && <div className="px-4 py-3 bg-verified-light border border-verified/20 rounded-xl text-verified text-sm">{success}</div>}
+    </>
+  );
+
+  /* ── Active profile view ── */
   if (userProfile) {
     return (
-      <div className="p-5 max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            👤 My Profile
-          </h2>
-          <p className="text-gray-600">
-            Your safety profile in the Community Guardian
-          </p>
+      <div className="p-7 max-w-xl">
+        <div className="mb-7">
+          <h2 className="text-xl font-semibold text-slate-800">My Profile</h2>
+          <p className="text-sm text-slate-500 mt-1">Your safety profile in Community Guardian</p>
         </div>
 
-        {/* Profile Details Card */}
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-          {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-6 text-red-700">
-              {error}
+        {/* Avatar card */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-4">
+          <div className="bg-sidebar px-6 py-8 flex items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-indigo-500 text-white flex items-center justify-center text-2xl font-bold flex-shrink-0">
+              {userProfile.name.charAt(0).toUpperCase()}
             </div>
-          )}
-
-          {success && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg mb-6 text-green-700">
-              {success}
-            </div>
-          )}
-
-          {/* Profile Fields */}
-          <div className="space-y-5">
-            {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name
-              </label>
-              <p className="text-lg text-gray-900">{userProfile.name}</p>
-            </div>
-
-            {/* Neighborhood */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Neighborhood
-              </label>
-              <p className="text-gray-900">
-                {userProfile.neighborhood || "Not specified"}
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                🔒 Privacy: Only neighborhood level, never street addresses
-              </p>
-            </div>
-
-            {/* City */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                City
-              </label>
-              <p className="text-gray-900">
-                {userProfile.city || "Not specified"}
-              </p>
-            </div>
-
-            {/* Share Location */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-800">
-                    Location Visibility
-                  </p>
-                  <p className="text-xs text-gray-600 mt-1">
-                    {userProfile.share_location
-                      ? "Your neighborhood is visible to community members"
-                      : "Your location is private"}
-                  </p>
-                </div>
-                <span className="text-2xl">
-                  {userProfile.share_location ? "🌍" : "🔒"}
-                </span>
-              </div>
+              <p className="text-white font-semibold text-lg leading-tight">{userProfile.name}</p>
+              {(userProfile.neighborhood || userProfile.city) && (
+                <p className="text-slate-400 text-sm mt-0.5 flex items-center gap-1.5">
+                  <IconPin />
+                  {userProfile.neighborhood && userProfile.city
+                    ? `${userProfile.neighborhood}, ${userProfile.city}`
+                    : userProfile.neighborhood || userProfile.city}
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 mt-8">
+          <div className="px-6 py-5 space-y-4">
+            <Feedback />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className={LABEL_CLS}>Neighbourhood</p>
+                <p className="text-sm text-slate-700">{userProfile.neighborhood || <span className="text-slate-400">Not set</span>}</p>
+              </div>
+              <div>
+                <p className={LABEL_CLS}>City</p>
+                <p className="text-sm text-slate-700">{userProfile.city || <span className="text-slate-400">Not set</span>}</p>
+              </div>
+            </div>
+
+            {/* Location visibility */}
+            <div className={`flex items-center justify-between p-4 rounded-xl ${userProfile.share_location ? "bg-accent-light" : "bg-slate-50"}`}>
+              <div>
+                <p className="text-sm font-medium text-slate-700">Location visibility</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {userProfile.share_location
+                    ? "Neighbourhood visible to community members"
+                    : "Your location is private"}
+                </p>
+              </div>
+              <span className={userProfile.share_location ? "text-accent" : "text-slate-400"}>
+                {userProfile.share_location ? <IconGlobe /> : <IconLock />}
+              </span>
+            </div>
+
             <button
               onClick={handleDelete}
-              className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium"
+              disabled={loading}
+              className="w-full py-2.5 text-sm font-medium text-noise border border-noise/30 rounded-xl hover:bg-noise-light transition-colors disabled:opacity-50"
             >
-              Delete Profile
+              {loading ? "Deleting…" : "Delete profile"}
             </button>
           </div>
         </div>
+
+        {/* Privacy note */}
+        <p className="text-xs text-slate-400 flex items-center gap-1.5">
+          <IconLock /> Neighbourhood-level only — street addresses are never stored.
+        </p>
       </div>
     );
   }
 
-  // Show profile creation form
+  /* ── Create profile form ── */
   return (
-    <div className="p-5 max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">👤 My Profile</h2>
-        <p className="text-gray-600">
-          Set up your safety profile to connect with your community
-        </p>
+    <div className="p-7 max-w-xl">
+      <div className="mb-7">
+        <h2 className="text-xl font-semibold text-slate-800">Set up your profile</h2>
+        <p className="text-sm text-slate-500 mt-1">Connect with your community and get relevant alerts</p>
       </div>
 
-      {/* Form */}
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-        {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg mb-6 text-red-700">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="p-4 bg-green-50 border border-green-200 rounded-lg mb-6 text-green-700">
-            {success}
-          </div>
-        )}
+      <div className="bg-white rounded-2xl shadow-sm p-6 space-y-5">
+        <Feedback />
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name *
-            </label>
-            <input
-              type="text"
-              placeholder="Enter your name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <label className={LABEL_CLS}>Full name *</label>
+            <input type="text" placeholder="Your name" value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className={FIELD_CLS} />
           </div>
 
-          {/* Neighborhood */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Neighborhood
-            </label>
-            <input
-              type="text"
-              placeholder="e.g., Andheri West (neighborhood only, no street address)"
-              value={formData.neighborhood}
-              onChange={(e) =>
-                setFormData({ ...formData, neighborhood: e.target.value })
-              }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              🔒 Privacy: Only neighborhood level, never street addresses
-            </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={LABEL_CLS}>Neighbourhood</label>
+              <input type="text" placeholder="e.g. Andheri West" value={formData.neighborhood}
+                onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+                className={FIELD_CLS} />
+            </div>
+            <div>
+              <label className={LABEL_CLS}>City</label>
+              <input type="text" placeholder="e.g. Mumbai" value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                className={FIELD_CLS} />
+            </div>
           </div>
 
-          {/* City */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              City
-            </label>
-            <input
-              type="text"
-              placeholder="e.g., Mumbai"
-              value={formData.city}
-              onChange={(e) =>
-                setFormData({ ...formData, city: e.target.value })
-              }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Share Location */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <label className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                checked={formData.share_location}
-                onChange={(e) =>
-                  setFormData({ ...formData, share_location: e.target.checked })
-                }
-                className="w-4 h-4 rounded"
-              />
-              <div>
-                <p className="text-sm font-medium text-gray-800">
-                  Share my location with community
-                </p>
-                <p className="text-xs text-gray-600">
-                  Other members can see your neighborhood (but not exact
-                  address)
-                </p>
-              </div>
+          {/* Location sharing */}
+          <div className="flex items-start gap-3 p-4 bg-accent-light rounded-xl">
+            <input type="checkbox" id="share_location" checked={formData.share_location}
+              onChange={(e) => setFormData({ ...formData, share_location: e.target.checked })}
+              className="mt-0.5 w-4 h-4 rounded accent-indigo-600 flex-shrink-0" />
+            <label htmlFor="share_location" className="cursor-pointer">
+              <p className="text-sm font-medium text-slate-700">Share neighbourhood with community</p>
+              <p className="text-xs text-slate-500 mt-0.5">Others see your neighbourhood only — never your street address</p>
             </label>
           </div>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium disabled:opacity-50"
-          >
-            {loading ? "Creating Profile..." : "Create Profile"}
+          <p className="text-xs text-slate-400 flex items-center gap-1.5">
+            <IconLock /> Neighbourhood-level only. Street addresses are rejected at submission.
+          </p>
+
+          <button type="submit" disabled={loading}
+            className="w-full py-2.5 text-sm font-medium bg-accent text-white rounded-xl hover:bg-accent-hover transition-colors disabled:opacity-50">
+            {loading ? "Creating…" : "Create profile"}
           </button>
         </form>
       </div>

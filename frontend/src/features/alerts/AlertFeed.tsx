@@ -75,60 +75,58 @@ export default function AlertFeed({
 
   if (loading) {
     return (
-      <div className="p-8 text-center">
-        <div className="inline-block animate-spin">⏳</div>
-        <p className="text-gray-600 mt-2">{CONSTANTS.LOADING}</p>
+      <div className="flex flex-col items-center justify-center p-16 text-slate-400">
+        <svg className="animate-spin mb-3" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+        <p className="text-sm">{CONSTANTS.LOADING}</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-8 bg-red-50 border border-red-200 rounded-lg m-5">
-        <p className="text-red-800 font-medium">{CONSTANTS.ERROR}</p>
-        <p className="text-red-600 text-sm mt-1">{error}</p>
+      <div className="m-7 px-5 py-4 bg-noise-light border border-noise/20 rounded-xl">
+        <p className="text-noise font-medium text-sm">{CONSTANTS.ERROR}</p>
+        <p className="text-noise/70 text-xs mt-1">{error}</p>
       </div>
     );
   }
 
   if (!alerts || alerts.length === 0) {
     return (
-      <div className="p-8 text-center">
-        <p className="text-gray-600 font-medium">{CONSTANTS.NO_DATA}</p>
-        <p className="text-gray-500 text-sm mt-1">
-          Stay safe and stay informed
-        </p>
+      <div className="flex flex-col items-center justify-center p-16 text-slate-400">
+        <p className="text-sm font-medium">{CONSTANTS.NO_DATA}</p>
+        <p className="text-xs mt-1">Stay safe and stay informed</p>
       </div>
     );
   }
 
   return (
     <>
-      {/* Toggle filter */}
+      {/* Area filter toggle */}
       {userProfile && (
-        <div className="px-5 pt-4 flex justify-end">
-          <label className="flex items-center gap-2 cursor-pointer">
+        <div className="px-7 pt-4 flex justify-end">
+          <label className="flex items-center gap-2 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={showOnlyRelevant}
               onChange={(e) => setShowOnlyRelevant(e.target.checked)}
-              className="w-4 h-4 rounded"
+              className="w-4 h-4 rounded accent-indigo-600"
             />
-            <span className="text-sm text-gray-700">
-              Show only alerts from your area
+            <span className="text-sm text-slate-500">
+              My area only
             </span>
           </label>
         </div>
       )}
 
-      {/* Alert feed */}
-      <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Feed */}
+      <div className="p-7 grid grid-cols-1 md:grid-cols-2 gap-4">
         {displayedAlerts.length === 0 ? (
-          <div className="col-span-full p-8 text-center">
-            <p className="text-gray-600 font-medium">
-              {showOnlyRelevant
-                ? `No alerts from ${userLocation}`
-                : CONSTANTS.NO_DATA}
+          <div className="col-span-full flex flex-col items-center justify-center py-16 text-slate-400">
+            <p className="text-sm font-medium">
+              {showOnlyRelevant ? `No alerts from ${userLocation}` : CONSTANTS.NO_DATA}
             </p>
           </div>
         ) : (

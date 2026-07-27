@@ -1,5 +1,3 @@
-import Badge from "../../components/Badge";
-import ActionBox from "../../components/ActionBox";
 import type { Alert } from "../../types";
 
 interface AlertCardProps {
@@ -8,106 +6,102 @@ interface AlertCardProps {
   onViewDetails: (id: number) => void;
 }
 
+const TYPE_LABELS: Record<string, string> = {
+  phishing: "Phishing",
+  breach: "Breach",
+  scam: "Scam",
+  crime: "Crime",
+  accident: "Accident",
+  disaster: "Disaster",
+  outage: "Outage",
+  general: "General",
+};
+
+const CLASSIFICATION_LABEL: Record<string, { label: string; textCls: string; bgCls: string }> = {
+  verified:   { label: "Verified",   textCls: "text-verified",   bgCls: "bg-verified-light" },
+  noise:      { label: "Noise",      textCls: "text-noise",      bgCls: "bg-noise-light"    },
+  unreviewed: { label: "Unreviewed", textCls: "text-unreviewed", bgCls: "bg-unreviewed-light" },
+};
+
 export default function AlertCard({ alert, onViewDetails }: AlertCardProps) {
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return (
-      date.toLocaleDateString() +
-      " " +
-      date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    );
-  };
+  const ts = new Date(alert.created_at);
+  const timeStr = ts.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const dateStr = ts.toLocaleDateString([], { month: "short", day: "numeric" });
+
+  const cls = CLASSIFICATION_LABEL[alert.classification] ?? CLASSIFICATION_LABEL.unreviewed;
+  const stripeCls = `stripe-${alert.classification}`;
+  const barCls = `bar-${alert.classification}`;
+  const confidencePct = Math.round(alert.ai_confidence * 100);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition p-5">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-800">{alert.title}</h3>
-          <p className="text-xs text-gray-500 mt-1">
-            {formatDate(alert.created_at)}
-          </p>
-        </div>
-        {alert.dismissed && (
-          <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded font-medium">
-            Dismissed
+    <div className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow pl-0 overflow-hidden flex ${stripeCls}`}>
+      <div className="flex-1 p-5">
+        {/* Header row */}
+        <div className="flex items-start justify-between gap-3 mb-2">
+          <h3 className="text-sm font-semibold text-slate-800 leading-snug">{alert.title}</h3>
+          <span className={`flex-shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-full ${cls.bgCls} ${cls.textCls}`}>
+            {cls.label}
           </span>
-        )}
-      </div>
-
-      {/* Description Preview */}
-      <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-        {alert.description}
-      </p>
-
-      {/* Location */}
-      {(alert.neighborhood || alert.city) && (
-        <div className="mb-2 px-2 py-1 bg-amber-50 rounded border border-amber-200 inline-block">
-          <p className="text-xs text-amber-800 font-medium">
-            📍{" "}
-            {alert.neighborhood && alert.city
-              ? `${alert.neighborhood}, ${alert.city}`
-              : alert.neighborhood || alert.city}
-          </p>
         </div>
-      )}
 
-      {/* Badges */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <Badge
-          label="Status"
-          type="classification"
-          value={alert.classification}
-        />
-        <Badge label="Severity" type="severity" value={alert.severity} />
-        <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-          <span className="font-semibold">Type:</span> {alert.alert_type}
-        </span>
-      </div>
-
-      {/* Action Summary */}
-      <div className="mb-4">
-        <ActionBox
-          classification={alert.classification}
-          actionSummary={alert.action_summary}
-        />
-      </div>
-
-      {/* Confidence */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="text-sm text-gray-600">
-          <span className="font-medium">Confidence:</span>
+        {/* Meta row */}
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-xs text-slate-400 tabular-nums">{dateStr} · {timeStr}</span>
+          {(alert.neighborhood || alert.city) && (
+            <>
+              <span className="text-slate-300">·</span>
+              <span className="text-xs text-slate-500">
+                {alert.neighborhood && alert.city
+                  ? `${alert.neighborhood}, ${alert.city}`
+                  : alert.neighborhood || alert.city}
+              </span>
+            </>
+          )}
         </div>
-        <div className="flex-1 bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-blue-600 h-2 rounded-full"
-            style={{ width: `${Math.round(alert.ai_confidence * 100)}%` }}
-          />
-        </div>
-        <span className="text-sm font-medium text-gray-700 w-12 text-right">
-          {Math.round(alert.ai_confidence * 100)}%
-        </span>
-      </div>
 
-      {/* AI Method */}
-      <div className="mb-4 p-2 bg-gray-50 rounded-lg border border-gray-200">
-        <p className="text-xs text-gray-600">
-          <span className="font-medium">Classification by:</span>{" "}
-          <span
-            className={`font-semibold ${alert.ai_method === "groq_ai" ? "text-green-700" : "text-orange-700"}`}
-          >
-            {alert.ai_method === "groq_ai" ? "Groq AI" : "Fallback"}
-          </span>
+        {/* Description */}
+        <p className="text-sm text-slate-500 line-clamp-2 mb-4 leading-relaxed">
+          {alert.description}
         </p>
-      </div>
 
-      {/* Actions */}
-      <button
-        onClick={() => onViewDetails(alert.id)}
-        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-      >
-        View Details
-      </button>
+        {/* Action summary */}
+        {alert.action_summary && (
+          <p className="text-xs text-slate-600 bg-slate-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
+            {alert.action_summary}
+          </p>
+        )}
+
+        {/* Footer row */}
+        <div className="flex items-center gap-4">
+          {/* Type chip */}
+          <span className="text-[11px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-500 uppercase tracking-wide">
+            {TYPE_LABELS[alert.alert_type] ?? alert.alert_type}
+          </span>
+
+          {/* Confidence bar */}
+          <div className="flex items-center gap-2 flex-1">
+            <div className="flex-1 bg-slate-100 rounded-full h-1.5">
+              <div className={`h-1.5 rounded-full ${barCls}`} style={{ width: `${confidencePct}%` }} />
+            </div>
+            <span className="text-[11px] font-semibold text-slate-500 tabular-nums w-9 text-right">
+              {confidencePct}%
+            </span>
+          </div>
+
+          {/* AI method */}
+          <span className={`text-[11px] font-medium ${alert.ai_method === "groq_ai" ? "text-emerald-600" : "text-slate-400"}`}>
+            {alert.ai_method === "groq_ai" ? "AI" : "Rules"}
+          </span>
+        </div>
+
+        {/* Details button */}
+        <button
+          onClick={() => onViewDetails(alert.id)}
+          className="mt-4 w-full py-2 text-sm font-medium text-accent bg-accent-light hover:bg-indigo-100 rounded-lg transition-colors"
+        >
+          View details
+        </button>
+      </div>
     </div>
   );
 }
