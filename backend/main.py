@@ -2,6 +2,7 @@ import os
 import sys
 import random
 from pathlib import Path
+from contextlib import asynccontextmanager
 
 # Add backend directory to path for imports
 backend_dir = Path(__file__).parent
@@ -27,13 +28,21 @@ load_dotenv(dotenv_path=env_file)
 # Create tables (now that models are imported)
 Base.metadata.create_all(bind=engine)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    asyncio.create_task(background_ingest())
+    yield
+
+
 # Create FastAPI app with documentation
 app = FastAPI(
     title="Community Safety & Digital Wellness API",
     description="AI-powered alert aggregation with noise filtering and security checklists",
     version="1.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # Add CORS middleware
@@ -130,11 +139,6 @@ async def background_ingest():
         db.rollback()
     finally:
         db.close()
-
-@app.on_event("startup")
-async def startup_ingest():
-    """Start background ingestion without blocking startup"""
-    asyncio.create_task(background_ingest())
 
 @app.get("/health", tags=["Health"])
 def health_check():

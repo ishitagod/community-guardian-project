@@ -1,5 +1,7 @@
 # Community Guardian
 
+[![Tests](https://github.com/ishitagod/community-guardian-project/actions/workflows/test.yml/badge.svg)](https://github.com/ishitagod/community-guardian-project/actions/workflows/test.yml)
+
 AI-powered community safety digest. Filters noise from real local
 alerts using Groq AI — with a rule-based fallback that works offline.
 
@@ -18,7 +20,7 @@ A 7-minute walkthrough covering the full flow of the platform, AI classification
 ### Mac / Linux
 
 ```bash
-git clone https://github.com/ishitagod/community-guardian.git
+git clone https://github.com/ishitagod/community-guardian-project.git
 cd community-guardian-project
 make setup
 make run
@@ -210,8 +212,8 @@ Follow these steps exactly, one by one.
 ### Step 1 — Clone the repo
 
 ```bash
-git clone https://github.com/you/community-guardian.git
-cd community-guardian
+git clone https://github.com/ishitagod/community-guardian-project.git
+cd community-guardian-project
 ```
 
 ### Step 2 — Backend setup

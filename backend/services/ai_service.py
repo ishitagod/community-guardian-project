@@ -16,10 +16,7 @@ load_dotenv(dotenv_path=env_file, override=True)
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL = "llama-3.3-70b-versatile"
-
-print(f"Looking for .env at: {env_file}")
-print(f"File exists: {env_file.exists()}")
-print(f"Key loaded: {'YES' if GROQ_API_KEY else 'NO — key is None'}")
+DEBUG = os.getenv("DEBUG", "").lower() in ("1", "true", "yes")
 
 
 PROMPT_TEMPLATE = """You are a calm community safety assistant. Never use alarming language.
@@ -51,7 +48,6 @@ async def classify_alert_with_ai(title: str, description: str, alert_type: str) 
         alert_type = "general"
 
     if not GROQ_API_KEY:
-        print("No key — using fallback")
         return fallback_classify(title, description, alert_type)
 
     try:
@@ -72,17 +68,13 @@ async def classify_alert_with_ai(title: str, description: str, alert_type: str) 
                 }
             )
 
-        # ADD THESE — shows exactly what Groq returned
-        print(f"Groq status: {response.status_code}")
-        print(f"Groq raw response: {response.text}")
-
         if response.status_code != 200:
-            print(f"Groq returned {response.status_code} — using fallback")
+            if DEBUG:
+                print(f"Groq returned {response.status_code} — using fallback")
             return fallback_classify(title, description, alert_type)
 
         raw = response.json()
         content = raw["choices"][0]["message"]["content"].strip()
-        print(f"Groq content: {content}")
 
         if content.startswith("```"):
             content = content.split("```")[1]
@@ -101,17 +93,12 @@ async def classify_alert_with_ai(title: str, description: str, alert_type: str) 
             parsed["action_summary"] = "Stay informed and take practical security precautions."
 
         parsed["ai_method"] = "groq_ai"
-        print(f"Final parsed result: {parsed}")
         return parsed
 
-    except json.JSONDecodeError as e:
-        print(f"JSON PARSE ERROR: {e}")
-        print(f"Content that failed to parse: {content}")
+    except json.JSONDecodeError:
         return fallback_classify(title, description, alert_type)
 
-    except Exception as e:
-        import traceback
-        traceback.print_exc()   # prints the FULL error with line numbers
+    except Exception:
         return fallback_classify(title, description, alert_type)
 
 
