@@ -1,129 +1,128 @@
 import { useState } from "react";
 import { useProfiles } from "../../hooks/useProfiles";
 
+function IconPin() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+function IconLock() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </svg>
+  );
+}
+function IconUsers() {
+  return (
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
 export default function CommunityPage() {
   const [keyword, setKeyword] = useState("");
   const { profiles, loading, error } = useProfiles(keyword);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-  };
-
   if (loading) {
     return (
-      <div className="p-8 text-center">
-        <div className="inline-block animate-spin">⏳</div>
-        <p className="text-gray-600 mt-2">Loading community members...</p>
+      <div className="flex flex-col items-center justify-center p-16 text-slate-400">
+        <svg className="animate-spin mb-3" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+        <p className="text-sm">Loading community members…</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="p-8 bg-red-50 border border-red-200 rounded-lg m-5">
-        <p className="text-red-800 font-medium">Error loading profiles</p>
-        <p className="text-red-600 text-sm mt-1">{error}</p>
+      <div className="m-7 px-5 py-4 bg-noise-light border border-noise/20 rounded-xl">
+        <p className="text-noise font-medium text-sm">Error loading profiles</p>
+        <p className="text-noise/70 text-xs mt-1">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="p-5">
+    <div className="p-7">
       {/* Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          👥 Community Members
-        </h2>
-        <p className="text-gray-600">
-          Connect with others in your neighborhood
-        </p>
+        <h2 className="text-xl font-semibold text-slate-800">Community</h2>
+        <p className="text-sm text-slate-500 mt-1">Members in your neighbourhood</p>
       </div>
 
       {/* Search */}
-      <form onSubmit={handleSearch} className="mb-6">
+      <div className="relative mb-6 max-w-sm">
+        <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+        </svg>
         <input
           type="text"
-          placeholder="Search by name or neighborhood..."
+          placeholder="Search by name or neighbourhood…"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent placeholder:text-slate-400"
         />
-      </form>
+      </div>
 
-      {/* Profiles Grid */}
+      {/* Grid */}
       {profiles && profiles.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {profiles.map((profile) => (
-            <div
-              key={profile.id}
-              className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition p-5"
-            >
-              {/* Name */}
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                {profile.name}
-              </h3>
-
-              {/* Location - only show if shared */}
-              {profile.share_location && profile.neighborhood && (
-                <div className="flex gap-2 mb-3">
-                  <span className="text-gray-500">📍</span>
-                  <div>
-                    <p className="text-sm text-gray-700">
-                      {profile.neighborhood}
+            <div key={profile.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+              {/* Avatar strip */}
+              <div className="bg-sidebar px-5 py-4 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-indigo-500 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                  {profile.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-white font-medium text-sm truncate">{profile.name}</p>
+                  {profile.share_location && profile.neighborhood ? (
+                    <p className="text-slate-400 text-xs flex items-center gap-1 mt-0.5">
+                      <IconPin />{profile.neighborhood}{profile.city ? `, ${profile.city}` : ""}
                     </p>
-                    {profile.city && (
-                      <p className="text-xs text-gray-500">{profile.city}</p>
-                    )}
-                  </div>
+                  ) : (
+                    <p className="text-slate-500 text-xs flex items-center gap-1 mt-0.5">
+                      <IconLock /> Private location
+                    </p>
+                  )}
                 </div>
-              )}
+              </div>
 
-              {!profile.share_location && (
-                <div className="text-xs text-gray-500 mb-3">
-                  🔒 Location not shared
-                </div>
-              )}
-
-              {/* Concerns */}
-              {profile.concerns && (
-                <div className="mb-4">
-                  <p className="text-xs font-medium text-gray-600 mb-2">
-                    Safety Concerns:
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.concerns.split(",").map((concern, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
-                      >
-                        {concern.trim()}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Button */}
-              <button
-                onClick={() =>
-                  window.alert(`${profile.name}'s profile ID: ${profile.id}`)
-                }
-                className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-              >
-                View Profile
-              </button>
+              {/* Body */}
+              <div className="px-5 py-4">
+                {profile.concerns ? (
+                  <>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Concerns</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {profile.concerns.split(",").map((concern, idx) => (
+                        <span key={idx} className="px-2 py-0.5 bg-accent-light text-accent text-xs rounded-full font-medium">
+                          {concern.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-xs text-slate-400">No concerns listed</p>
+                )}
+              </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="p-8 text-center">
-          <p className="text-2xl mb-2">👥</p>
-          <p className="text-gray-600 font-medium">
-            No community members found
-          </p>
-          <p className="text-gray-500 text-sm mt-1">
-            Be the first to join your neighborhood
-          </p>
+        <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+          <IconUsers />
+          <p className="text-sm font-medium mt-4">No community members yet</p>
+          <p className="text-xs mt-1">Be the first to join your neighbourhood</p>
         </div>
       )}
     </div>

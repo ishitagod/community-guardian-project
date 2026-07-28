@@ -8,7 +8,11 @@ from contextlib import asynccontextmanager
 backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
+import logging
+
 from fastapi import FastAPI
+
+logger = logging.getLogger(__name__)
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from database import Base, engine, get_db
@@ -16,6 +20,7 @@ import models
 from routes.alerts import router as alerts_router
 from routes.ingest import router as ingest_router
 from routes.profiles import router as profiles_router
+from routes.digest import router as digest_router
 from services.news_ingestion import get_incidents
 from services.ai_service import classify_alert_with_ai
 import asyncio
@@ -58,6 +63,7 @@ app.add_middleware(
 app.include_router(alerts_router)
 app.include_router(ingest_router)
 app.include_router(profiles_router)
+app.include_router(digest_router)
 
 
 async def background_ingest():
@@ -70,19 +76,18 @@ async def background_ingest():
         alert_count = db.query(Alert).count()
 
         if alert_count > 0:
-            print("Alerts already exist, skipping background ingest")
+            logger.info("Alerts already exist, skipping background ingest")
             db.close()
             return
 
         incidents = await get_incidents()
         if not incidents:
-            print("No incidents found")
+            logger.warning("No incidents found")
             db.close()
             return
 
-        # Select 10 random incidents
         incidents = random.sample(incidents, min(10, len(incidents)))
-        print(f"Starting background ingest of {len(incidents)} random incidents...")
+        logger.info("Starting background ingest of %d incidents", len(incidents))
         for index, incident in enumerate(incidents):
             # Add delay between processing each alert (5 seconds)
             if index > 0:
@@ -132,10 +137,10 @@ async def background_ingest():
 
             db.add(alert)
             db.commit()
-            print(f"✓ Added alert: {title}")
+            logger.info("Added alert: %s", title)
 
     except Exception as e:
-        print(f"Background ingest error: {e}")
+        logger.error("Background ingest error: %s", e)
         db.rollback()
     finally:
         db.close()

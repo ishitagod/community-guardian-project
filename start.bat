@@ -28,7 +28,7 @@ if !errorlevel! == 0 (
 
 echo.
 echo   ERROR: Python not found.
-echo   Install Python 3.9+ from https://python.org
+echo   Install Python 3.12 from https://python.org
 echo   Make sure to check "Add Python to PATH" during install.
 echo.
 pause
@@ -94,7 +94,7 @@ echo [4/5] Installing frontend dependencies...
 
 if not exist "frontend\node_modules" (
     cd frontend
-    call npm install --silent
+    call npm install
     if !errorlevel! neq 0 (
         echo.
         echo   ERROR: npm install failed.

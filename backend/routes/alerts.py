@@ -7,6 +7,8 @@ from database import get_db
 from models import Alert
 from schemas import AlertCreate, AlertResponse, AlertWithChecklist, ClassificationUpdate
 from services.ai_service import classify_alert_with_ai, generate_checklist
+from services.relevance import score_alerts
+from models import UserProfile
 from datetime import datetime
 
 router = APIRouter(prefix="/alerts", tags=["alerts"])
@@ -17,9 +19,10 @@ def list_alerts(
     alert_type: str = Query(None, description="Filter by alert type"),
     classification: str = Query(None, description="Filter by classification"),
     severity: str = Query(None, description="Filter by severity"),
+    profile_id: int = Query(None, description="Score and rank by relevance to this profile"),
     db: Session = Depends(get_db)
 ):
-    """List all alerts with optional filtering"""
+    """List alerts, optionally ranked by relevance to a user profile."""
     query = db.query(Alert).filter(Alert.dismissed == False)
 
     if keyword:
@@ -27,17 +30,23 @@ def list_alerts(
             (Alert.title.ilike(f"%{keyword}%")) |
             (Alert.description.ilike(f"%{keyword}%"))
         )
-
     if alert_type:
         query = query.filter(Alert.alert_type == alert_type)
-
     if classification:
         query = query.filter(Alert.classification == classification)
-
     if severity:
         query = query.filter(Alert.severity == severity)
 
-    return query.order_by(desc(Alert.created_at)).all()
+    alerts = query.order_by(desc(Alert.created_at)).all()
+
+    if profile_id:
+        profile = db.query(UserProfile).filter(UserProfile.id == profile_id).first()
+        if profile:
+            alert_dicts = [AlertResponse.model_validate(a).model_dump() for a in alerts]
+            alert_dicts = score_alerts(alert_dicts, profile.city, profile.concerns)
+            return alert_dicts
+
+    return alerts
 
 
 @router.get("/{alert_id}", response_model=AlertWithChecklist)
@@ -73,7 +82,9 @@ async def create_alert(data: AlertCreate, db: Session = Depends(get_db)):
         ai_confidence=classification_result['confidence'],
         ai_reasoning=classification_result['reasoning'],
         action_summary=classification_result.get('action_summary', ''),
-        ai_method=classification_result.get('ai_method', 'fallback')
+        ai_method=classification_result.get('ai_method', 'fallback'),
+        neighborhood=data.neighborhood,
+        city=data.city
     )
 
     db.add(alert)

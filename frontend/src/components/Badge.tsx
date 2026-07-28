@@ -6,47 +6,26 @@ interface BadgeProps {
   value: Classification | Severity;
 }
 
-export default function Badge({ label, type, value }: BadgeProps) {
-  let bgColor = "bg-gray-100";
-  let textColor = "text-gray-800";
+const CLASSIFICATION_STYLES: Record<string, string> = {
+  verified:   "bg-verified-light text-verified",
+  noise:      "bg-noise-light text-noise",
+  unreviewed: "bg-unreviewed-light text-unreviewed",
+};
 
-  if (type === "classification") {
-    switch (value) {
-      case "verified":
-        bgColor = "bg-green-100";
-        textColor = "text-green-800";
-        break;
-      case "noise":
-        bgColor = "bg-red-100";
-        textColor = "text-red-800";
-        break;
-      case "unreviewed":
-        bgColor = "bg-yellow-100";
-        textColor = "text-yellow-800";
-        break;
-    }
-  } else if (type === "severity") {
-    switch (value) {
-      case "high":
-        bgColor = "bg-red-100";
-        textColor = "text-red-800";
-        break;
-      case "medium":
-        bgColor = "bg-yellow-100";
-        textColor = "text-yellow-800";
-        break;
-      case "low":
-        bgColor = "bg-blue-100";
-        textColor = "text-blue-800";
-        break;
-    }
-  }
+const SEVERITY_STYLES: Record<string, string> = {
+  high:   "bg-noise-light text-noise",
+  medium: "bg-unreviewed-light text-unreviewed",
+  low:    "bg-slate-100 text-slate-500",
+};
+
+export default function Badge({ label, type, value }: BadgeProps) {
+  const cls = type === "classification"
+    ? (CLASSIFICATION_STYLES[value] ?? "bg-slate-100 text-slate-500")
+    : (SEVERITY_STYLES[value] ?? "bg-slate-100 text-slate-500");
 
   return (
-    <div
-      className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${bgColor} ${textColor}`}
-    >
-      <span className="font-semibold">{label}:</span> {value}
-    </div>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${cls}`}>
+      {label}: {value}
+    </span>
   );
 }
