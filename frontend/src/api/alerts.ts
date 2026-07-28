@@ -5,6 +5,8 @@ import { API_CONFIG } from "../config/api";
 interface CreateAlertPayload {
   title: string;
   description: string;
+  neighborhood?: string;
+  city?: string;
 }
 
 interface AlertWithChecklist extends Alert {

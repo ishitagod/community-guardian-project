@@ -1,11 +1,12 @@
 """Database configuration and session management"""
 
 import os
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# Use SQLite with file-based database
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./safety_alerts.db")
+_default_db = Path(__file__).parent / "safety_alerts.db"
+DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{_default_db}")
 
 # For SQLite, we need check_same_thread=False to allow multi-threaded access
 connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}

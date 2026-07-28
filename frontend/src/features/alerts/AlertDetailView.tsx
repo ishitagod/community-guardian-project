@@ -163,14 +163,9 @@ export default function AlertDetailView({ id, onClose }: AlertDetailViewProps) {
               <div>
                 <span className="text-sm text-slate-600">Classified by </span>
                 <span className={`text-sm font-semibold ${alert.ai_method === "groq_ai" ? "text-emerald-600" : "text-slate-500"}`}>
-                  {alert.ai_method === "groq_ai" ? "Groq AI" : "Rule-based fallback"}
+                  {alert.ai_method === "groq_ai" ? "Groq AI" : "Automated review"}
                 </span>
               </div>
-              {alert.ai_reasoning && (
-                <p className="text-xs text-slate-500 italic leading-relaxed pt-1 border-t border-slate-200">
-                  {alert.ai_reasoning}
-                </p>
-              )}
             </div>
           </div>
         </div>

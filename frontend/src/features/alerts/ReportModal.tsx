@@ -7,7 +7,7 @@ interface ReportModalProps {
 }
 
 export default function ReportModal({ onClose, onSuccess }: ReportModalProps) {
-  const [formData, setFormData] = useState({ title: "", description: "" });
+  const [formData, setFormData] = useState({ title: "", description: "", neighborhood: "", city: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -24,8 +24,13 @@ export default function ReportModal({ onClose, onSuccess }: ReportModalProps) {
         setLoading(false);
         return;
       }
-      await createAlert(formData);
-      setSuccess("Alert submitted — AI is classifying it now.");
+      await createAlert({
+        title: formData.title,
+        description: formData.description,
+        neighborhood: formData.neighborhood || undefined,
+        city: formData.city || undefined,
+      });
+      setSuccess("Report submitted successfully.");
       setTimeout(() => onSuccess(), 1500);
     } catch (err) {
       console.error("Failed to create alert:", err);
@@ -86,7 +91,7 @@ export default function ReportModal({ onClose, onSuccess }: ReportModalProps) {
               Description
             </label>
             <textarea
-              placeholder="Describe what you observed — specific details help the AI classify accurately."
+              placeholder="Describe what you observed…"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={4}
@@ -94,9 +99,32 @@ export default function ReportModal({ onClose, onSuccess }: ReportModalProps) {
             />
           </div>
 
-          <p className="text-xs text-slate-400">
-            The AI classifier will review your report and assign a confidence score.
-          </p>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+                Neighbourhood <span className="normal-case font-normal">(optional)</span>
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Andheri West"
+                value={formData.neighborhood}
+                onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent placeholder:text-slate-400"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
+                City <span className="normal-case font-normal">(optional)</span>
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Mumbai"
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent placeholder:text-slate-400"
+              />
+            </div>
+          </div>
 
           <div className="flex gap-3 pt-1">
             <button

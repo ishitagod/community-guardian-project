@@ -20,6 +20,7 @@ import models
 from routes.alerts import router as alerts_router
 from routes.ingest import router as ingest_router
 from routes.profiles import router as profiles_router
+from routes.digest import router as digest_router
 from services.news_ingestion import get_incidents
 from services.ai_service import classify_alert_with_ai
 import asyncio
@@ -62,6 +63,7 @@ app.add_middleware(
 app.include_router(alerts_router)
 app.include_router(ingest_router)
 app.include_router(profiles_router)
+app.include_router(digest_router)
 
 
 async def background_ingest():

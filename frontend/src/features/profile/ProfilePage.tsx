@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createProfile, deleteProfile } from "../../api/profiles";
+import { createProfile, updateProfile, deleteProfile } from "../../api/profiles";
 import { useProfileStore } from "../../store/profileStore";
 
 function IconLock() {
@@ -36,6 +36,10 @@ export default function ProfilePage() {
   const [formData, setFormData] = useState({
     name: "", neighborhood: "", city: "", concerns: "", share_location: false,
   });
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    name: "", neighborhood: "", city: "", concerns: "", share_location: false,
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -66,6 +70,41 @@ export default function ProfilePage() {
       setTimeout(() => setSuccess(""), 3000);
     } catch {
       setError("Failed to create profile. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = () => {
+    if (!userProfile) return;
+    setEditData({
+      name: userProfile.name,
+      neighborhood: userProfile.neighborhood ?? "",
+      city: userProfile.city ?? "",
+      concerns: userProfile.concerns ?? "",
+      share_location: userProfile.share_location,
+    });
+    setError(""); setSuccess("");
+    setIsEditing(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userProfile) return;
+    setLoading(true); setError(""); setSuccess("");
+    try {
+      if (!editData.name.trim()) { setError("Name is required."); setLoading(false); return; }
+      if (editData.neighborhood.trim() && !validateLocation(editData.neighborhood)) {
+        setError("Use neighbourhood name only — no street addresses (e.g. 'Andheri West').");
+        setLoading(false); return;
+      }
+      const res = await updateProfile(userProfile.id, editData);
+      setUserProfile(res.data);
+      setSuccess("Profile updated.");
+      setIsEditing(false);
+      setTimeout(() => setSuccess(""), 3000);
+    } catch {
+      setError("Failed to update profile. Try again.");
     } finally {
       setLoading(false);
     }
@@ -124,39 +163,103 @@ export default function ProfilePage() {
           <div className="px-6 py-5 space-y-4">
             <Feedback />
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className={LABEL_CLS}>Neighbourhood</p>
-                <p className="text-sm text-slate-700">{userProfile.neighborhood || <span className="text-slate-400">Not set</span>}</p>
-              </div>
-              <div>
-                <p className={LABEL_CLS}>City</p>
-                <p className="text-sm text-slate-700">{userProfile.city || <span className="text-slate-400">Not set</span>}</p>
-              </div>
-            </div>
+            {isEditing ? (
+              <form onSubmit={handleEditSubmit} className="space-y-4">
+                <div>
+                  <label className={LABEL_CLS}>Full name *</label>
+                  <input type="text" value={editData.name}
+                    onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                    className={FIELD_CLS} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={LABEL_CLS}>Neighbourhood</label>
+                    <input type="text" placeholder="e.g. Andheri West" value={editData.neighborhood}
+                      onChange={(e) => setEditData({ ...editData, neighborhood: e.target.value })}
+                      className={FIELD_CLS} />
+                  </div>
+                  <div>
+                    <label className={LABEL_CLS}>City</label>
+                    <input type="text" placeholder="e.g. Mumbai" value={editData.city}
+                      onChange={(e) => setEditData({ ...editData, city: e.target.value })}
+                      className={FIELD_CLS} />
+                  </div>
+                </div>
+                <div>
+                  <label className={LABEL_CLS}>Safety concerns</label>
+                  <input type="text" placeholder="e.g. phishing, theft, scam" value={editData.concerns}
+                    onChange={(e) => setEditData({ ...editData, concerns: e.target.value })}
+                    className={FIELD_CLS} />
+                  <p className="text-xs text-slate-400 mt-1">Comma-separated</p>
+                </div>
+                <div className="flex items-start gap-3 p-4 bg-accent-light rounded-xl">
+                  <input type="checkbox" id="edit_share_location" checked={editData.share_location}
+                    onChange={(e) => setEditData({ ...editData, share_location: e.target.checked })}
+                    className="mt-0.5 w-4 h-4 rounded accent-indigo-600 flex-shrink-0" />
+                  <label htmlFor="edit_share_location" className="cursor-pointer">
+                    <p className="text-sm font-medium text-slate-700">Share neighbourhood with community</p>
+                    <p className="text-xs text-slate-500 mt-0.5">Others see neighbourhood only — never street address</p>
+                  </label>
+                </div>
+                <div className="flex gap-3">
+                  <button type="button" onClick={() => setIsEditing(false)}
+                    className="flex-1 py-2.5 text-sm font-medium border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+                    Cancel
+                  </button>
+                  <button type="submit" disabled={loading}
+                    className="flex-1 py-2.5 text-sm font-medium bg-accent text-white rounded-xl hover:bg-accent-hover transition-colors disabled:opacity-50">
+                    {loading ? "Saving…" : "Save changes"}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className={LABEL_CLS}>Neighbourhood</p>
+                    <p className="text-sm text-slate-700">{userProfile.neighborhood || <span className="text-slate-400">Not set</span>}</p>
+                  </div>
+                  <div>
+                    <p className={LABEL_CLS}>City</p>
+                    <p className="text-sm text-slate-700">{userProfile.city || <span className="text-slate-400">Not set</span>}</p>
+                  </div>
+                </div>
 
-            {/* Location visibility */}
-            <div className={`flex items-center justify-between p-4 rounded-xl ${userProfile.share_location ? "bg-accent-light" : "bg-slate-50"}`}>
-              <div>
-                <p className="text-sm font-medium text-slate-700">Location visibility</p>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  {userProfile.share_location
-                    ? "Neighbourhood visible to community members"
-                    : "Your location is private"}
-                </p>
-              </div>
-              <span className={userProfile.share_location ? "text-accent" : "text-slate-400"}>
-                {userProfile.share_location ? <IconGlobe /> : <IconLock />}
-              </span>
-            </div>
+                {userProfile.concerns && (
+                  <div>
+                    <p className={LABEL_CLS}>Safety concerns</p>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {userProfile.concerns.split(",").map((c, i) => (
+                        <span key={i} className="px-2 py-0.5 bg-accent-light text-accent text-xs rounded-full font-medium">{c.trim()}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            <button
-              onClick={handleDelete}
-              disabled={loading}
-              className="w-full py-2.5 text-sm font-medium text-noise border border-noise/30 rounded-xl hover:bg-noise-light transition-colors disabled:opacity-50"
-            >
-              {loading ? "Deleting…" : "Delete profile"}
-            </button>
+                <div className={`flex items-center justify-between p-4 rounded-xl ${userProfile.share_location ? "bg-accent-light" : "bg-slate-50"}`}>
+                  <div>
+                    <p className="text-sm font-medium text-slate-700">Location visibility</p>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {userProfile.share_location ? "Neighbourhood visible to community members" : "Your location is private"}
+                    </p>
+                  </div>
+                  <span className={userProfile.share_location ? "text-accent" : "text-slate-400"}>
+                    {userProfile.share_location ? <IconGlobe /> : <IconLock />}
+                  </span>
+                </div>
+
+                <div className="flex gap-3">
+                  <button onClick={handleEdit}
+                    className="flex-1 py-2.5 text-sm font-medium border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+                    Edit profile
+                  </button>
+                  <button onClick={handleDelete} disabled={loading}
+                    className="flex-1 py-2.5 text-sm font-medium text-noise border border-noise/30 rounded-xl hover:bg-noise-light transition-colors disabled:opacity-50">
+                    {loading ? "Deleting…" : "Delete profile"}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -200,6 +303,14 @@ export default function ProfilePage() {
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 className={FIELD_CLS} />
             </div>
+          </div>
+
+          <div>
+            <label className={LABEL_CLS}>Safety concerns</label>
+            <input type="text" placeholder="e.g. phishing, theft, scam" value={formData.concerns}
+              onChange={(e) => setFormData({ ...formData, concerns: e.target.value })}
+              className={FIELD_CLS} />
+            <p className="text-xs text-slate-400 mt-1">Comma-separated — helps personalise your alerts</p>
           </div>
 
           {/* Location sharing */}

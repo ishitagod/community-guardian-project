@@ -1,4 +1,8 @@
-"""AI service using Groq API for noise filtering"""
+"""Three-tier classification pipeline:
+  Tier 1 — local sklearn (fast, no API cost, high-confidence cases)
+  Tier 2 — Groq LLM (ambiguous cases needing reasoning)
+  Tier 3 — rule-based fallback (no network dependency)
+"""
 
 import os
 import json
@@ -7,20 +11,16 @@ import httpx
 from pathlib import Path
 from dotenv import load_dotenv
 from services.fallback import classify_alert as fallback_classify
+from services.local_classifier import get_classifier
 
 logger = logging.getLogger(__name__)
 
-# Load .env from project root (one level up from backend)
 project_root = Path(__file__).parent.parent.parent
-env_file = project_root / ".env"
-load_dotenv(dotenv_path=env_file, override=True)
-
+load_dotenv(dotenv_path=project_root / ".env", override=True)
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL = "llama-3.3-70b-versatile"
-
-
 
 PROMPT_TEMPLATE = """You are a calm community safety assistant. Never use alarming language.
 Classify this community report and return ONLY valid JSON with no markdown, no backticks.
@@ -33,50 +33,56 @@ Determine if the report is:
   "classification": "verified" or "noise" or "unreviewed",
   "confidence": 0.0 to 1.0,
   "reasoning": "Internal note explaining why (for moderation team)",
-  "action_summary": "1-2 calm, practical sentences for the user (e.g., 'Check your accounts regularly. Enable 2FA if you haven't already.')"
+  "action_summary": "1-2 calm, practical sentences for the user"
 }}
 
 Report: {text}
 Alert type: {alert_type}"""
 
-async def classify_alert_with_ai(title: str, description: str, alert_type: str) -> dict:
 
-    """
-    Use Groq API to classify alert as verified or noise
-    Falls back to rule-based if API fails
-    Returns: {classification, confidence, reasoning, ai_method}
-    """
-    # If alert_type is empty, use "general" as default for classification
-    if not alert_type or alert_type.strip() == "":
+async def classify_alert_with_ai(title: str, description: str, alert_type: str) -> dict:
+    """Three-tier classifier. Returns {classification, confidence, reasoning, action_summary, ai_method}."""
+    if not alert_type or not alert_type.strip():
         alert_type = "general"
 
-    if not GROQ_API_KEY:
-        return fallback_classify(title, description, alert_type)
+    text = f"{title}\n{description}"
 
+    # ── Tier 1: local sklearn ──────────────────────────────────────────
+    result = get_classifier().predict(text)
+    if result:
+        logger.info("Classified by local ML (confidence %.2f)", result["confidence"])
+        return result
+
+    # ── Tier 2: Groq LLM ──────────────────────────────────────────────
+    if GROQ_API_KEY:
+        result = await _call_groq(text, alert_type)
+        if result:
+            return result
+
+    # ── Tier 3: rule-based fallback ───────────────────────────────────
+    return fallback_classify(title, description, alert_type)
+
+
+async def _call_groq(text: str, alert_type: str) -> dict | None:
+    """Call Groq API. Returns parsed dict or None on any failure."""
     try:
-        text = f"{title}\n{description}"
-
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.post(
                 GROQ_URL,
-                headers={
-                    "Authorization": f"Bearer {GROQ_API_KEY}",
-                    "Content-Type": "application/json"
-                },
+                headers={"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"},
                 json={
                     "model": GROQ_MODEL,
                     "messages": [{"role": "user", "content": PROMPT_TEMPLATE.format(text=text, alert_type=alert_type)}],
                     "temperature": 0.3,
-                    "max_tokens": 300
-                }
+                    "max_tokens": 300,
+                },
             )
 
         if response.status_code != 200:
-            logger.warning("Groq returned %d — using fallback", response.status_code)
-            return fallback_classify(title, description, alert_type)
+            logger.warning("Groq returned %d — falling through to rule-based", response.status_code)
+            return None
 
-        raw = response.json()
-        content = raw["choices"][0]["message"]["content"].strip()
+        content = response.json()["choices"][0]["message"]["content"].strip()
 
         if content.startswith("```"):
             content = content.split("```")[1]
@@ -86,8 +92,7 @@ async def classify_alert_with_ai(title: str, description: str, alert_type: str) 
 
         parsed = json.loads(content)
 
-        valid_classifications = ["verified", "noise", "unreviewed"]
-        if parsed.get("classification") not in valid_classifications:
+        if parsed.get("classification") not in ("verified", "noise", "unreviewed"):
             parsed["classification"] = "unreviewed"
         if not isinstance(parsed.get("confidence"), (int, float)):
             parsed["confidence"] = 0.5
@@ -97,52 +102,41 @@ async def classify_alert_with_ai(title: str, description: str, alert_type: str) 
         parsed["ai_method"] = "groq_ai"
         return parsed
 
-    except json.JSONDecodeError:
-        return fallback_classify(title, description, alert_type)
-
-    except Exception:
-        return fallback_classify(title, description, alert_type)
+    except (json.JSONDecodeError, KeyError):
+        logger.warning("Groq response unparseable — falling through to rule-based")
+        return None
+    except Exception as e:
+        logger.warning("Groq call failed (%s) — falling through to rule-based", e)
+        return None
 
 
 def generate_checklist(alert_type: str) -> dict:
-    """
-    Generate security checklist based on alert type
-    Returns: {checklist_items: [], category, method}
-    """
-
     templates = {
-        'phishing': [
+        "phishing": [
             "Check Have I Been Pwned (haveibeenpwned.com) to see if your email was compromised",
             "Enable two-factor authentication (2FA) on critical accounts",
-            "Monitor your bank and credit card accounts for suspicious activity"
+            "Monitor your bank and credit card accounts for suspicious activity",
         ],
-        'breach': [
+        "breach": [
             "Change your password immediately for the affected service",
             "Check your credit report at annualcreditreport.com",
-            "Set a fraud alert with the three credit bureaus (Equifax, Experian, TransUnion)"
+            "Set a fraud alert with the three credit bureaus (Equifax, Experian, TransUnion)",
         ],
-        'scam': [
+        "scam": [
             "Do not send money or share personal information",
             "Report the scam to the FTC at reportfraud.ftc.gov",
-            "Block the sender and mark as spam/report to platform"
+            "Block the sender and mark as spam/report to platform",
         ],
-        'crime': [
+        "crime": [
             "Contact local law enforcement if you witness or experience a crime",
             "Document details (date, time, location, description)",
-            "Increase home security measures and alert neighbors"
+            "Increase home security measures and alert neighbors",
         ],
-        'general': [
+        "general": [
             "Assess if this alert impacts you directly",
             "Share relevant information with affected contacts",
-            "Monitor official channels for updates"
-        ]
+            "Monitor official channels for updates",
+        ],
     }
-
-    alert_type_key = alert_type.lower() if alert_type.lower() in templates else 'general'
-    checklist = templates.get(alert_type_key, templates['general'])
-
-    return {
-        'checklist_items': checklist,
-        'category': alert_type_key,
-        'method': 'template_based'
-    }
+    key = alert_type.lower() if alert_type.lower() in templates else "general"
+    return {"checklist_items": templates[key], "category": key, "method": "template_based"}

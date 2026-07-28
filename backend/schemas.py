@@ -55,6 +55,8 @@ class AlertCreate(BaseModel):
     description: str = Field(..., min_length=10, description="Alert description")
     alert_type: str = Field(default="general", description="Type: phishing, breach, scam, crime, accident, disaster, outage, general")
     severity: str = Field(default="medium", description="Severity: low, medium, high")
+    neighborhood: Optional[str] = Field(None, max_length=255)
+    city: Optional[str] = Field(None, max_length=255)
 
 class AlertResponse(BaseModel):
     """Schema for alert response"""
@@ -75,6 +77,7 @@ class AlertResponse(BaseModel):
     dismissed: bool
     created_at: datetime
     updated_at: datetime
+    relevance_score: Optional[float] = None
 
 class AlertWithChecklist(AlertResponse):
     """Alert with security checklist"""
